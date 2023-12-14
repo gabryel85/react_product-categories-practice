@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
 
@@ -14,7 +14,11 @@ export const TodoList: React.FC<Props> = React.memo(
     onTodoDelete,
     onTodoUpdate,
   }) => {
+    const ref = useRef<Todo[]>([]);
     console.log('Rendering TodoList');
+
+    console.log(ref.current === todos);
+    ref.current = todos;
 
     return (
       <section className="TodoList">
