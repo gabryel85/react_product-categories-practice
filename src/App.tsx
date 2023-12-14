@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 import todosFromServer from './api/todos';
 
@@ -7,17 +7,6 @@ import { TodoList } from './components/TodoList';
 import { getUser, TodoForm } from './components/TodoForm';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-function debounce(f: Function, delay: number) {
-  let timerId = 0;
-
-  return (...args: any[]) => {
-    if (timerId) {
-      window.clearInterval(timerId);
-    }
-
-    timerId = setTimeout(f, delay, ...args);
-  };
-}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>(() => {
@@ -29,11 +18,6 @@ export const App: React.FC = () => {
 
   const [count, setCount] = useState(0);
   const [query, setQuery] = useState('');
-  const [appliedQuery, setAppliedQuery] = useState('');
-
-  const apply = useMemo(() => {
-    return debounce(setAppliedQuery, 1000);
-  }, []);
 
   const addTodo = (todoData: Omit<Todo, 'id'>) => {
     const newTodo = {
@@ -44,24 +28,22 @@ export const App: React.FC = () => {
     setTodos(currentTodos => [...currentTodos, newTodo]);
   };
 
-  const deleteTodo = useCallback((todoId: number) => {
+  const deleteTodo = (todoId: number) => {
     setTodos(currentTodos => currentTodos.filter(
       todo => todo.id !== todoId,
     ));
-  }, []);
+  };
 
-  const updateTodo = useCallback((updatedTodo: Todo) => {
+  const updateTodo = (updatedTodo: Todo) => {
     setTodos(currentTodos => currentTodos.map(
       todo => (todo.id === updatedTodo.id ? updatedTodo : todo),
     ));
-  }, []);
+  };
 
-  const lowerQuery = appliedQuery.toLocaleLowerCase();
-  const visibleTodos = useMemo(() => {
-    return todos.filter(
-      todo => todo.title.toLocaleLowerCase().includes(lowerQuery),
-    );
-  }, [lowerQuery]);
+  const lowerQuery = query.toLocaleLowerCase();
+  const visibleTodos = todos.filter(
+    todo => todo.title.toLocaleLowerCase().includes(lowerQuery),
+  );
 
   return (
     <div className="App">
@@ -76,7 +58,6 @@ export const App: React.FC = () => {
         value={query}
         onChange={e => {
           setQuery(e.target.value);
-          apply(e.target.value);
         }}
       />
 

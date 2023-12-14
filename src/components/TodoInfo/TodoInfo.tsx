@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoForm } from '../TodoForm';
 import { UserInfo } from '../UserInfo';
@@ -15,9 +15,9 @@ export const TodoInfo: React.FC<Props> = React.memo(
     const [editing, setEditing] = useState(false);
 
     console.log(`Rendering ${todo.id}`);
-    useEffect(() => console.log(`${todo.id} todo changed`), [todo]);
-    useEffect(() => console.log(`${todo.id} onDelete changed`), [onDelete]);
-    useEffect(() => console.log(`${todo.id} onUpdate changed`), [onUpdate]);
+    // useEffect(() => console.log(`${todo.id} todo changed`), [todo]);
+    // useEffect(() => console.log(`${todo.id} onDelete changed`), [onDelete]);
+    // useEffect(() => console.log(`${todo.id} onUpdate changed`), [onUpdate]);
 
     return (
       <article
