@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import { Todo } from '../types/Todo';
 import todosFromServer from '../api/todos';
+// eslint-disable-next-line import/no-cycle
 import { getUser } from '../components/TodoForm';
 import { debounce } from '../utils/debeunce';
 
@@ -42,6 +43,7 @@ const TodoProvider: FC<Props> = ({ children }) => {
   const lowerQuery = appliedQuery.toLocaleLowerCase();
   const visibleTodos = useMemo(() => todos.filter(
     todo => {
+      // eslint-disable-next-line no-console
       console.log('filter');
 
       return todo.title.toLocaleLowerCase().includes(lowerQuery);
@@ -97,8 +99,13 @@ export function withTodoContext<T extends ComponentType>(WrappedComponent: T) {
     const todo = useTodo();
     const methods = useTodoUpdateMethod();
 
-    // @ts-ignore
-    return <WrappedComponent {...props as unknown as T} todo={todo} methods={methods} />;
+    return (
+      <WrappedComponent
+        {...props as unknown as T}
+        todo={todo}
+        methods={methods}
+      />
+    );
   };
 
   return ComponentWithTodo;
