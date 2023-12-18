@@ -2,6 +2,8 @@ import { useState } from 'react';
 import usersFromServer from '../api/users';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
+// eslint-disable-next-line import/no-cycle
+import { useTodoUpdateMethod } from '../providers/TodoProvider';
 
 export function getUser(userId: number): User | null {
   const foundUser = usersFromServer.find(user => user.id === userId);
@@ -11,16 +13,17 @@ export function getUser(userId: number): User | null {
 
 type Props = {
   todo?: Todo;
-  onSubmit: (todo: Omit<Todo, 'id'>) => void;
 };
 
-export const TodoForm: React.FC<Props> = ({ onSubmit, todo }) => {
+export const TodoForm: React.FC<Props> = ({ todo }) => {
   const [title, setTitle] = useState(todo?.title || '');
   const [userId, setUserId] = useState(todo?.userId || 0);
   const [completed, setCompleted] = useState(todo?.completed || false);
 
   const [hasTitleError, setTitleError] = useState(false);
   const [hasUserError, setUserError] = useState(false);
+
+  const { addTodo: onSubmit } = useTodoUpdateMethod();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

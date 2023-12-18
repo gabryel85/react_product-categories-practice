@@ -1,25 +1,15 @@
-import React, { useRef } from 'react';
-import { Todo } from '../../types/Todo';
+import React from 'react';
 import { TodoInfo } from '../TodoInfo';
+import { useTodo } from '../../providers/TodoProvider';
 
-type Props = {
-  todos: Todo[];
-  onTodoDelete: (todoId: number) => void;
-  onTodoUpdate: (todo: Todo) => void;
-};
+type Props = {};
 
 export const TodoList: React.FC<Props> = React.memo(
-  ({
-    todos,
-    onTodoDelete,
-    onTodoUpdate,
-  }) => {
-    const ref = useRef<Todo[]>([]);
+  () => {
+    const todos = useTodo();
 
+    // eslint-disable-next-line no-console
     console.log('Rendering TodoList');
-
-    console.log(ref.current === todos);
-    ref.current = todos;
 
     return (
       <section className="TodoList">
@@ -27,8 +17,6 @@ export const TodoList: React.FC<Props> = React.memo(
           <TodoInfo
             key={todo.id}
             todo={todo}
-            onDelete={onTodoDelete}
-            onUpdate={onTodoUpdate}
           />
         ))}
       </section>

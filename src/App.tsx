@@ -1,53 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.scss';
-import todosFromServer from './api/todos';
+import { differenceInSeconds } from 'date-fns';
 
-import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
-import { getUser, TodoForm } from './components/TodoForm';
+import { TodoForm } from './components/TodoForm';
+import { withCache } from './hoc/withCache';
+import { useTodoUpdateMethod } from './providers/TodoProvider';
+import { Test } from './components/Test';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+const TodoFormWithCache = withCache(TodoForm);
 
-export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>(() => {
-    return todosFromServer.map(todo => ({
-      ...todo,
-      user: getUser(todo.userId),
-    }));
-  });
+const App: React.FC = () => {
+  const date = useRef(new Date());
+  const intervalId = useRef<ReturnType<typeof setInterval>>();
+
+  const [time, setTime] = useState<number>(0);
+
+  useEffect(() => {
+    intervalId.current = setInterval(() => {
+      setTime(differenceInSeconds(new Date(), date.current));
+    }, 1000);
+
+    return () => {
+      if (intervalId.current) {
+        clearInterval(intervalId.current);
+      }
+    };
+  }, []);
 
   const [count, setCount] = useState(0);
-  const [query, setQuery] = useState('');
-
-  const addTodo = (todoData: Omit<Todo, 'id'>) => {
-    const newTodo = {
-      ...todoData,
-      id: Math.max(...todos.map(todo => todo.id)) + 1,
-    };
-
-    setTodos(currentTodos => [...currentTodos, newTodo]);
-  };
-
-  const deleteTodo = (todoId: number) => {
-    setTodos(currentTodos => currentTodos.filter(
-      todo => todo.id !== todoId,
-    ));
-  };
-
-  const updateTodo = (updatedTodo: Todo) => {
-    setTodos(currentTodos => currentTodos.map(
-      todo => (todo.id === updatedTodo.id ? updatedTodo : todo),
-    ));
-  };
-
-  const lowerQuery = query.toLocaleLowerCase();
-  const visibleTodos = todos.filter(
-    todo => todo.title.toLocaleLowerCase().includes(lowerQuery),
-  );
+  const { apply, query, setQuery } = useTodoUpdateMethod();
 
   return (
     <div className="App">
-      <h1>Add todo form</h1>
+      <h1>
+        Add todo form, czas użytkownika na stronie
+        {time}
+      </h1>
 
       <button type="button" onClick={() => setCount(x => x + 1)}>
         {count}
@@ -58,15 +47,15 @@ export const App: React.FC = () => {
         value={query}
         onChange={e => {
           setQuery(e.target.value);
+          apply(e.target.value);
         }}
       />
 
-      <TodoForm onSubmit={addTodo} />
-      <TodoList
-        todos={visibleTodos}
-        onTodoDelete={deleteTodo}
-        onTodoUpdate={updateTodo}
-      />
+      <TodoFormWithCache />
+      <TodoList />
+      <Test />
     </div>
   );
 };
+
+export default withCache(App);
