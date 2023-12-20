@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.scss';
-import { differenceInSeconds } from 'date-fns';
 
 import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
@@ -11,22 +10,22 @@ import { Test } from './components/Test';
 const TodoFormWithCache = withCache(TodoForm);
 
 const App: React.FC = () => {
-  const date = useRef(new Date());
-  const intervalId = useRef<ReturnType<typeof setInterval>>();
+  // const date = useRef(new Date());
+  // const intervalId = useRef<ReturnType<typeof setInterval>>();
 
-  const [time, setTime] = useState<number>(0);
+  // const [time, setTime] = useState<number>(0);
 
-  useEffect(() => {
-    intervalId.current = setInterval(() => {
-      setTime(differenceInSeconds(new Date(), date.current));
-    }, 1000);
-
-    return () => {
-      if (intervalId.current) {
-        clearInterval(intervalId.current);
-      }
-    };
-  }, []);
+  // useEffect(() => {
+  //   intervalId.current = setInterval(() => {
+  //     setTime(differenceInSeconds(new Date(), date.current));
+  //   }, 1000);
+  //
+  //   return () => {
+  //     if (intervalId.current) {
+  //       clearInterval(intervalId.current);
+  //     }
+  //   };
+  // }, []);
 
   const [count, setCount] = useState(0);
   const { apply, query, setQuery } = useTodoUpdateMethod();
@@ -35,7 +34,6 @@ const App: React.FC = () => {
     <div className="App">
       <h1>
         Add todo form, czas użytkownika na stronie
-        {time}
       </h1>
 
       <button type="button" onClick={() => setCount(x => x + 1)}>

@@ -13,6 +13,7 @@ export function withCache<T extends ComponentType<any>>(WrappedComponent: T) {
   const cache = localStorage.getItem('mate-test');
 
   const ComponentWithCache: React.FC<WithCacheProps<React.ComponentProps<T>>> = (props) => {
+    // @ts-ignore
     return <WrappedComponent {...props} cache={cache} />;
   };
 

@@ -1,11 +1,20 @@
 import React, {
-  ComponentType,
-  createContext, Dispatch, FC, useCallback, useContext, useMemo, useState,
+  createContext,
+  Dispatch,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import todosFromServer from '../api/todos';
+import {
+  getTodos,
+  deleteTodo as deleteTodoFromApi,
+  createTodo,
+} from '../api/todos';
 // eslint-disable-next-line import/no-cycle
-import { getUser } from '../components/TodoForm';
 import { debounce } from '../utils/debeunce';
 
 type Props = {
@@ -26,12 +35,23 @@ const TodoUpdateContext = createContext<TodoUpdateContextType>(
   {} as TodoUpdateContextType,
 );
 const TodoProvider: FC<Props> = ({ children }) => {
-  const [todos, setTodos] = useState<Todo[]>(() => {
-    return todosFromServer.map(todo => ({
-      ...todo,
-      user: getUser(todo.userId),
-    }));
-  });
+  const [todos, setTodos] = useState<Todo[]>([] as Todo[]);
+
+  useEffect(() => {
+    const getTodosFormApi = async () => {
+      const data: Todo[] = await getTodos();
+
+      setTodos(data);
+    };
+
+    getTodosFormApi();
+
+    // (async () => {
+    //   const data: Todo[] = await getTodos();
+    //
+    //   setTodos(data);
+    // })();
+  }, []);
 
   const [query, setQuery] = useState('');
   const [appliedQuery, setAppliedQuery] = useState('');
@@ -41,7 +61,7 @@ const TodoProvider: FC<Props> = ({ children }) => {
   }, []);
 
   const lowerQuery = appliedQuery.toLocaleLowerCase();
-  const visibleTodos = useMemo(() => todos.filter(
+  const visibleTodos = useMemo(() => todos?.filter(
     todo => {
       // eslint-disable-next-line no-console
       console.log('filter');
@@ -50,16 +70,14 @@ const TodoProvider: FC<Props> = ({ children }) => {
     },
   ), [todos, lowerQuery]);
 
-  const addTodo = (todoData: Omit<Todo, 'id'>) => {
-    const newTodo = {
-      ...todoData,
-      id: Math.max(...todos.map(todo => todo.id)) + 1,
-    };
+  const addTodo = async (todoData: Omit<Todo, 'id'>) => {
+    const newTodo = await createTodo(todoData);
 
     setTodos(currentTodos => [...currentTodos, newTodo]);
   };
 
-  const deleteTodo = useCallback((todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
+    await deleteTodoFromApi(todoId);
     setTodos(currentTodos => currentTodos.filter(
       todo => todo.id !== todoId,
     ));
@@ -93,20 +111,3 @@ export default TodoProvider;
 
 export const useTodo = () => useContext(TodoContext);
 export const useTodoUpdateMethod = () => useContext(TodoUpdateContext);
-
-export function withTodoContext<T extends ComponentType>(WrappedComponent: T) {
-  const ComponentWithTodo = (props: any) => {
-    const todo = useTodo();
-    const methods = useTodoUpdateMethod();
-
-    return (
-      <WrappedComponent
-        {...props as unknown as T}
-        todo={todo}
-        methods={methods}
-      />
-    );
-  };
-
-  return ComponentWithTodo;
-}

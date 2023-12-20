@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withTodoContext } from '../providers/TodoProvider';
 
 // eslint-disable-next-line react/prefer-stateless-function
 export class Test extends Component {
@@ -15,4 +14,4 @@ export class Test extends Component {
   }
 }
 
-export default React.memo(withTodoContext(Test));
+export default React.memo(Test);
